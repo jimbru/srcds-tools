@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+# srctool
+#
+# Useful for managing srcds.
+# -jimbru
+
+SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+action_install() {
+  INSTALL_PATH=$1
+  : ${INSTALL_PATH:="."}
+
+  SRCDS_PATH=$INSTALL_PATH/srcds
+
+  echo "Installing srcds into $SRCDS_PATH ..."
+
+  mkdir -p $SRCDS_PATH
+
+  echo yes | $SCRIPT_PATH/hldsupdatetool.bin > /dev/null
+  if [[ $? != 0 ]]
+  then
+    echo "ERROR: Hldsupdatetool.bin exited abnormally. Exiting..."
+    exit 1
+  fi
+
+  mv readme.txt $SRCDS_PATH/srcds_readme.txt
+  mv steam $SRCDS_PATH/
+
+  RETURN=1
+  INDEX=0
+  RETRY=5
+  while [[ $RETURN != 0 && $INDEX < $RETRY ]]
+  do
+    $SRCDS_PATH/steam -command update -game "Counter-Strike Source" -dir $SRCDS_PATH
+    RETURN=$?
+    ((++INDEX))
+  done
+  if [[ $INDEX == $RETRY ]]
+  then
+    echo "ERROR: Steam failed after $RETRY retries. Exiting..."
+    exit 1
+  fi
+
+  echo "[ DONE ]"
+}
+
+print_usage() {
+  echo "Usage: $0 action [-opts] [args]"
+}
+
+# -----
+
+if [[ $# < 1 ]]
+then
+  print_usage
+  exit 1
+fi
+
+ACTION=$1
+shift
+case $ACTION in
+  install ) action_install $@ ;;
+  usage   ) print_usage ;;
+  *       ) echo "Unknown action. Exiting..." ;;
+esac
+exit 0
