@@ -20,7 +20,7 @@ action_install() {
   echo yes | $SCRIPT_PATH/hldsupdatetool.bin > /dev/null
   if [[ $? != 0 ]]
   then
-    echo "ERROR: Hldsupdatetool.bin exited abnormally. Exiting..."
+    print_error "Hldsupdatetool.bin exited abnormally."
     exit 1
   fi
 
@@ -38,11 +38,23 @@ action_install() {
   done
   if [[ $INDEX == $RETRY ]]
   then
-    echo "ERROR: Steam failed after $RETRY retries. Exiting..."
+    print_error "Steam failed after $RETRY retries."
     exit 1
   fi
 
-  echo "[ DONE ]"
+  print_done
+}
+
+print_done() {
+  GREEN='\e[0;32m'
+  ENDCOLOR='\e[0m'
+  echo -e "[ ${GREEN}DONE${ENDCOLOR} ]"
+}
+
+print_error() {
+  RED='\e[0;31m'
+  ENDCOLOR='\e[0m'
+  echo -e "[ ${RED}ERROR${ENDCOLOR} ] $1"
 }
 
 print_usage() {
