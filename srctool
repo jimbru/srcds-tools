@@ -6,17 +6,25 @@
 # -jimbru
 
 SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+MMSOURCE="mmsource-1.8.7-linux.tar.gz"
 
 action_install() {
   INSTALL_PATH=$1
   : ${INSTALL_PATH:="."}
 
   SRCDS_PATH=$INSTALL_PATH/srcds
-
-  echo "Installing srcds into $SRCDS_PATH ..."
-
   mkdir -p $SRCDS_PATH
 
+  echo ">> Installing srcds into $SRCDS_PATH ..."
+  action_install_srcds $SRCDS_PATH
+
+  echo ">> Installing Metamod:Source ..."
+  action_install_mmsource $SRCDS_PATH
+
+  print_done
+}
+
+action_install_srcds() {
   echo yes | $SCRIPT_PATH/hldsupdatetool.bin > /dev/null
   if [[ $? != 0 ]]
   then
@@ -24,15 +32,15 @@ action_install() {
     exit 1
   fi
 
-  mv readme.txt $SRCDS_PATH/srcds_readme.txt
-  mv steam $SRCDS_PATH/
+  mv readme.txt $1/srcds_readme.txt
+  mv steam $1/
 
   RETURN=1
   INDEX=0
   RETRY=5
   while [[ $RETURN != 0 && $INDEX < $RETRY ]]
   do
-    $SRCDS_PATH/steam -command update -game "Counter-Strike Source" -dir $SRCDS_PATH
+    $1/steam -command update -game "Counter-Strike Source" -dir $1
     RETURN=$?
     ((++INDEX))
   done
@@ -41,8 +49,12 @@ action_install() {
     print_error "Steam failed after $RETRY retries."
     exit 1
   fi
+}
 
-  print_done
+action_install_mmsource() {
+  tar -zxf $MMSOURCE
+  mv addons $1/cstrike/
+  cp metamod.vdf $1/cstrike/addons/
 }
 
 print_done() {
