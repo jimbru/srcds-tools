@@ -2,11 +2,12 @@
 #
 # srctool
 #
-# Useful for managing srcds.
+# Useful for managing srcds. Currently supports only Counter-Strike Souce.
 # -jimbru
 
 SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 MMSOURCE="mmsource-1.8.7-linux.tar.gz"
+SOURCEMOD="sourcemod-1.4.2-linux.tar.gz"
 
 action_install() {
   INSTALL_PATH=$1
@@ -15,11 +16,14 @@ action_install() {
   SRCDS_PATH=$INSTALL_PATH/srcds
   mkdir -p $SRCDS_PATH
 
-  echo ">> Installing srcds into $SRCDS_PATH ..."
+  echo -e "\n>> Installing srcds into $SRCDS_PATH ..."
   action_install_srcds $SRCDS_PATH
 
-  echo ">> Installing Metamod:Source ..."
+  echo -e "\n>> Installing Metamod:Source ..."
   action_install_mmsource $SRCDS_PATH
+
+  echo -e "\n>> Installing Sourcemod ..."
+  action_install_sourcemod $SRCDS_PATH
 
   print_done
 }
@@ -52,9 +56,19 @@ action_install_srcds() {
 }
 
 action_install_mmsource() {
-  tar -zxf $MMSOURCE
-  mv addons $1/cstrike/
+  mkdir tmp
+  tar -zxf $MMSOURCE -C tmp/
+  cp -Rp tmp/addons $1/cstrike/
   cp metamod.vdf $1/cstrike/addons/
+  rm -rf tmp
+}
+
+action_install_sourcemod() {
+  mkdir tmp
+  tar -zxf $SOURCEMOD -C tmp/
+  cp -Rp tmp/addons $1/cstrike/
+  cp -Rp tmp/cfg $1/cstrike/
+  rm -rf tmp
 }
 
 print_done() {
