@@ -50,6 +50,7 @@ cmd_help() {
   echo "  help                      Prints help."
   echo "  install <dir>             Installs a srcds instance to the specificed directory."
   echo "  map <archive> <dir>       Copies the specified map archive to the specified srcds instance."
+  echo "  rcon <addr> <pwd> <cmd>   Send rcon command to the server at the specified address."
   echo ""
 }
 
@@ -138,6 +139,28 @@ cmd_map() {
   print_done
 }
 
+cmd_rcon() {
+  if [[ $# < 3 ]]
+  then
+    echo "'$0 rcon' requires three arguments: the server's IP address, the rcon password, and the command."
+    print_usage
+    exit 1
+  fi
+
+  ADDR=$1
+  PASSWD=$2
+  CMD=${@:3}
+
+  echo -e "Sending rcon @ $ADDR ($PASSWD): '$CMD' ...\n"
+  ./rcon.py -a $ADDR -p $PASSWD $CMD
+  if [[ $? == 0 ]]
+  then
+    print_done
+  else
+    print_error
+  fi
+}
+
 print_done() {
   GREEN='\e[0;32m'
   ENDCOLOR='\e[0m'
@@ -169,6 +192,7 @@ case $ACTION in
   help    ) cmd_help ;;
   install ) cmd_install $@ ;;
   map     ) cmd_map $@ ;;
+  rcon    ) cmd_rcon $@ ;;
   *       ) echo "Unknown action. Type '$0 help' for help. Exiting..." ;;
 esac
 exit 0
