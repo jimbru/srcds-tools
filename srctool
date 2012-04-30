@@ -37,16 +37,19 @@ cmd_config() {
     DIR=$DIR/sourcemod/
   fi
 
+  echo "Copying config file $FILE to $DIR ..."
   cp $FILE $DIR
+  print_done
 }
 
 cmd_help() {
   print_usage
   echo ""
   echo "srctool commands:"
-  echo "  config  [-s] <file> <dir>   Copies the specified config file to the specified srcds instance."
-  echo "  help                        Prints help."
-  echo "  install <dir>               Installs a srcds instance to the specificed directory."
+  echo "  config [-s] <file> <dir>  Copies the specified config file to the specified srcds instance."
+  echo "  help                      Prints help."
+  echo "  install <dir>             Installs a srcds instance to the specificed directory."
+  echo "  map <archive> <dir>       Copies the specified map archive to the specified srcds instance."
   echo ""
 }
 
@@ -112,6 +115,29 @@ cmd_install_sourcemod() {
   rm -rf tmp
 }
 
+cmd_map() {
+  if [[ $# != 2 ]]
+  then
+    echo "'$0 map' requires two arguments: the map archive and the srcds directory."
+    print_usage
+    exit 1
+  fi
+
+  echo "Installing map archive $1 ..."
+  mkdir tmp
+
+  if [[ $1 == *.zip ]]
+  then
+    unzip -q $1 -d tmp/
+  else
+    tar -zxf $1 -C tmp/
+  fi
+
+  cp -Rp tmp/cstrike/* $2/cstrike/
+  rm -rf tmp
+  print_done
+}
+
 print_done() {
   GREEN='\e[0;32m'
   ENDCOLOR='\e[0m'
@@ -142,6 +168,7 @@ case $ACTION in
   config  ) cmd_config $@ ;;
   help    ) cmd_help ;;
   install ) cmd_install $@ ;;
+  map     ) cmd_map $@ ;;
   *       ) echo "Unknown action. Type '$0 help' for help. Exiting..." ;;
 esac
 exit 0
