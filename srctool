@@ -9,12 +9,44 @@ SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 MMSOURCE="mmsource-1.8.7-linux.tar.gz"
 SOURCEMOD="sourcemod-1.4.2-linux.tar.gz"
 
+cmd_config() {
+  ARGCOUNT=$#
+  SM_CFG=false
+
+  while getopts :s OPTION
+  do
+    case $OPTION in
+      s ) SM_CFG=true ;;
+      ? ) echo "Unrecognized option: $OPTARG"; exit 1 ;;
+    esac
+    ((--ARGCOUNT))
+  done
+
+  if [[ $ARGCOUNT != 2 ]]
+  then
+    echo "'$0 config' requires two arguments: the config file and the srcds directory."
+    print_usage
+    exit 1
+  fi
+
+  FILE=${@:$OPTIND:1}
+  DIR=${@:$OPTIND+1:1}/cstrike/cfg/
+
+  if $SM_CFG
+  then
+    DIR=$DIR/sourcemod/
+  fi
+
+  cp $FILE $DIR
+}
+
 cmd_help() {
   print_usage
   echo ""
   echo "srctool commands:"
-  echo "  help            Prints help."
-  echo "  install <dir>   Installs a srcds instance to the specificed directory."
+  echo "  config  [-s] <file> <dir>   Copies the specified config file to the specified srcds instance."
+  echo "  help                        Prints help."
+  echo "  install <dir>               Installs a srcds instance to the specificed directory."
   echo ""
 }
 
@@ -107,8 +139,9 @@ fi
 ACTION=$1
 shift
 case $ACTION in
-  install ) cmd_install $@ ;;
+  config  ) cmd_config $@ ;;
   help    ) cmd_help ;;
+  install ) cmd_install $@ ;;
   *       ) echo "Unknown action. Type '$0 help' for help. Exiting..." ;;
 esac
 exit 0
