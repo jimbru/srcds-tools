@@ -9,7 +9,16 @@ SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 MMSOURCE="mmsource-1.8.7-linux.tar.gz"
 SOURCEMOD="sourcemod-1.4.2-linux.tar.gz"
 
-action_install() {
+cmd_help() {
+  print_usage
+  echo ""
+  echo "srctool commands:"
+  echo "  help            Prints help."
+  echo "  install <dir>   Installs a srcds instance to the specificed directory."
+  echo ""
+}
+
+cmd_install() {
   INSTALL_PATH=$1
   : ${INSTALL_PATH:="."}
 
@@ -17,18 +26,18 @@ action_install() {
   mkdir -p $SRCDS_PATH
 
   echo -e "\n>> Installing srcds into $SRCDS_PATH ..."
-  action_install_srcds $SRCDS_PATH
+  cmd_install_srcds $SRCDS_PATH
 
   echo -e "\n>> Installing Metamod:Source ..."
-  action_install_mmsource $SRCDS_PATH
+  cmd_install_mmsource $SRCDS_PATH
 
   echo -e "\n>> Installing Sourcemod ..."
-  action_install_sourcemod $SRCDS_PATH
+  cmd_install_sourcemod $SRCDS_PATH
 
   print_done
 }
 
-action_install_srcds() {
+cmd_install_srcds() {
   echo yes | $SCRIPT_PATH/hldsupdatetool.bin > /dev/null
   if [[ $? != 0 ]]
   then
@@ -55,7 +64,7 @@ action_install_srcds() {
   fi
 }
 
-action_install_mmsource() {
+cmd_install_mmsource() {
   mkdir tmp
   tar -zxf $MMSOURCE -C tmp/
   cp -Rp tmp/addons $1/cstrike/
@@ -63,7 +72,7 @@ action_install_mmsource() {
   rm -rf tmp
 }
 
-action_install_sourcemod() {
+cmd_install_sourcemod() {
   mkdir tmp
   tar -zxf $SOURCEMOD -C tmp/
   cp -Rp tmp/addons $1/cstrike/
@@ -84,7 +93,7 @@ print_error() {
 }
 
 print_usage() {
-  echo "Usage: $0 action [-opts] [args]"
+  echo "Usage: $0 <command> [-opts] [<args>]"
 }
 
 # -----
@@ -98,8 +107,8 @@ fi
 ACTION=$1
 shift
 case $ACTION in
-  install ) action_install $@ ;;
-  usage   ) print_usage ;;
-  *       ) echo "Unknown action. Exiting..." ;;
+  install ) cmd_install $@ ;;
+  help    ) cmd_help ;;
+  *       ) echo "Unknown action. Type '$0 help' for help. Exiting..." ;;
 esac
 exit 0
