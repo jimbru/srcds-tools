@@ -49,7 +49,8 @@ cmd_help() {
   echo "  config [-s] <file> <dir>  Copies the specified config file to the specified srcds instance."
   echo "  help                      Prints help."
   echo "  install <dir>             Installs a srcds instance to the specificed directory."
-  echo "  map <archive> <dir>       Copies the specified map archive to the specified srcds instance."
+  echo "  map <archive> <dir>       Installs the specified map archive to the specified srcds instance."
+  echo "  module <smx> <dir>        Installs the specified module to the specified srcds instance."
   echo "  rcon <addr> <pwd> <cmd>   Send rcon command to the server at the specified address."
   echo ""
 }
@@ -139,6 +140,25 @@ cmd_map() {
   print_done
 }
 
+cmd_module() {
+  if [[ $# != 2 ]]
+  then
+    echo "'$0 module' requires two arguments: the module and the srcds directory."
+    print_usage
+    exit 1
+  fi
+
+  if [[ $1 != *.smx ]]
+  then
+    print_error "Invalid module. Please specify a compiled module (*.smx) file."
+    exit 1
+  fi
+
+  echo "Installing module $1 ..."
+  cp -Rp $1 $2/cstrike/addons/sourcemod/
+  print_done
+}
+
 cmd_rcon() {
   if [[ $# < 3 ]]
   then
@@ -192,6 +212,7 @@ case $ACTION in
   help    ) cmd_help ;;
   install ) cmd_install $@ ;;
   map     ) cmd_map $@ ;;
+  module  ) cmd_module $@ ;;
   rcon    ) cmd_rcon $@ ;;
   *       ) echo "Unknown action. Type '$0 help' for help. Exiting..." ;;
 esac
