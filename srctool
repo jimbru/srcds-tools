@@ -6,8 +6,8 @@
 # -jimbru
 
 SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-MMSOURCE="mmsource-1.8.7-linux.tar.gz"
-SOURCEMOD="sourcemod-1.4.2-linux.tar.gz"
+MMSOURCE="install/mmsource-1.8.7-linux.tar.gz"
+SOURCEMOD="install/sourcemod-1.4.2-linux.tar.gz"
 
 cmd_config() {
   ARGCOUNT=$#
@@ -75,7 +75,7 @@ cmd_install() {
 }
 
 cmd_install_srcds() {
-  echo yes | $SCRIPT_PATH/hldsupdatetool.bin > /dev/null
+  echo yes | $SCRIPT_PATH/bin/hldsupdatetool.bin > /dev/null
   if [[ $? != 0 ]]
   then
     print_error "Hldsupdatetool.bin exited abnormally."
@@ -105,7 +105,7 @@ cmd_install_mmsource() {
   mkdir tmp
   tar -zxf $MMSOURCE -C tmp/
   cp -Rp tmp/addons $1/cstrike/
-  cp metamod.vdf $1/cstrike/addons/
+  cp install/metamod.vdf $1/cstrike/addons/
   rm -rf tmp
 }
 
@@ -172,7 +172,7 @@ cmd_rcon() {
   CMD=${@:3}
 
   echo -e "Sending rcon @ $ADDR ($PASSWD): '$CMD' ...\n"
-  ./rcon.py -a $ADDR -p $PASSWD $CMD
+  ./bin/rcon.py -a $ADDR -p $PASSWD $CMD
   if [[ $? == 0 ]]
   then
     print_done
