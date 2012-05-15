@@ -10,7 +10,7 @@
 
 from socket import *
 import sys
-from urllib import urlencode
+from urllib import quote
 from urllib2 import urlopen
 
 INTERFACE = ''  # all avaliable interfaces
@@ -26,7 +26,8 @@ def run_proxy(port, url):
     while True:
         data, addr = sock.recvfrom(1024)
         print '%s %s' % (addr, data),
-        response = urlopen(url, urlencode({'q': data}))
+        query = 'log=' + quote(data)
+        response = urlopen(url, query)
 
 
 def print_usage():
