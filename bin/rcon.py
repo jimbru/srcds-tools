@@ -158,7 +158,9 @@ Note: timeout is in seconds. host may be ip or hostname
             strs = ['', '']
         else:
             strs = re.split('[\000]', raw_packet[:-1], 1)
-        return (packetlen, req_id, command, strs[0], strs[1])    
+
+	strs.append([''])
+        return (packetlen, req_id, command, strs[0], strs[1])
     
     def _authenticate_rcon(self):
         if not self.rconpass: raise RCON_Error, 'Empty RCON password.'
